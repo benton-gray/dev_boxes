@@ -1,0 +1,20 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "centos/7"
+
+  config.vm.provider "virtualbox" do |v|
+    v.name         = "centos"
+    v.cpus         = ENV["VM_CPUS"]   ? ENV["VM_CPUS"]   : 1
+    v.memory       = ENV["VM_MEMORY"] ? ENV["VM_MEMORY"] : 512
+    v.linked_clone = true
+  end
+  
+  
+  config.trigger.after :up do |trigger|
+    trigger.info = "Machine is up! Provision with Ansible :)"
+    config.vm.provision "shell", path: "init.bash", privileged: false
+  end
+  
+  
+
+  config.vm.network "forwarded_port", guest: 80, host: 8080, auto_correct: true
+end
