@@ -1,0 +1,51 @@
+---
+- name: "Installing Docker"
+  hosts: all
+  become: yes
+  pre_tasks:
+    - name: Removing docker utilities see --- https://docs.docker.com/install/linux/docker-ce/centos/
+      dnf:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - docker
+        - docker-client
+        - docker-client-latest
+        - docker-common
+        - docker-latest
+        - docker-latest-logrotate
+        - docker-logrotate
+        - docker-engine
+    
+    - block:
+        - name: Download Docker Packages
+          get_url:
+            url: "https://download.docker.com/linux/centos/7/x86_64/stable/Packages/{{ item }}"
+            dest: "/tmp/{{ item }}"
+          loop:
+            - containerd.io-1.2.6-3.3.el7.x86_64.rpm  
+            - docker-ce-cli-19.03.5-3.el7.x86_64.rpm 
+            - docker-ce-19.03.5-3.el7.x86_64.rpm 
+
+        - name: Install Docker Packages
+          dnf:
+            name: "/tmp/{{ item }}"
+            state: installed
+          loop:
+            - containerd.io-1.2.6-3.3.el7.x86_64.rpm
+            - docker-ce-cli-19.03.5-3.el7.x86_64.rpm 
+            - docker-ce-19.03.5-3.el7.x86_64.rpm 
+
+  tasks: 
+    - name: Make sure a service is running
+      systemd: 
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Put vagrant user inside docker group
+      user:
+        name: vagrant
+        uid: 1000
+        group: docker
+    
