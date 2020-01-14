@@ -1,5 +1,5 @@
 Vagrant.configure("2") do |config|
-  config.vm.box = "centos/7"
+  config.vm.box = "centos/8"
 
   config.vm.provider "virtualbox" do |v|
     v.name         = "centos"
@@ -10,11 +10,24 @@ Vagrant.configure("2") do |config|
   
   
   config.trigger.after :up do |trigger|
-    trigger.info = "Machine is up! Provision with Ansible :)"
-    config.vm.provision "shell", path: "init.bash", privileged: false
+    trigger.info = "Machine is up! "\
+                   "Initialize with "\
+                   "'vagrant provision --provision-with init' :)"
+  end
+
+  config.vm.provision "init", 
+    type: "shell", 
+    path: "init.bash", 
+    run: "never", 
+    privileged: false
+
+  config.vm.provision "ansible_local" do |ansible|
+    ansible.playbook = "playbook.yml"
+    ansible.install  = false
   end
   
-  
-
-  config.vm.network "forwarded_port", guest: 80, host: 8080, auto_correct: true
+  config.vm.network "forwarded_port", 
+    guest: 80, 
+    host: 8080, 
+    auto_correct: true
 end
