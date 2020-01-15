@@ -8,6 +8,3 @@ jobs:
     steps:
     - name: Rubocop checks
       uses: gimenete/rubocop-action@1.0
-      run: |
-        cd centos
-        rubocop Vagrantfile
