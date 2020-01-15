@@ -16,7 +16,12 @@
         - docker-latest-logrotate
         - docker-logrotate
         - docker-engine
-    
+
+    - name: Install Packages
+      dnf:
+        name: git
+        state: installed
+
     - block:
         - name: Download Docker Packages
           get_url:
@@ -37,15 +42,31 @@
             - docker-ce-19.03.5-3.el7.x86_64.rpm 
 
   tasks: 
-    - name: Make sure a service is running
+    - name: Make sure docker service is running
       systemd: 
         name: docker
         state: started
         enabled: yes
 
-    - name: Put vagrant user inside docker group
-      user:
-        name: vagrant
+    - name: Make sure we have a 'wheel' group
+      group:
+        name: wheel
+        state: present
+  
+    - name: Allow 'wheel' group to have passwordless sudo
+      lineinfile:
+        dest: /etc/sudoers
+        state: present
+        regexp: '^%wheel'
+        line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+  
+    - name: Add sudoers users to wheel group
+      user: 
+        append: yes 
+        groups: 
+          - docker 
+          - wheel
+        name: vagrant 
+        state: present 
         uid: 1000
-        group: docker
-    
