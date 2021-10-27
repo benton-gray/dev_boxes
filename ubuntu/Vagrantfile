@@ -1,15 +1,15 @@
 Vagrant.configure("2") do |config|
-  config.vm.box = "benton-gray/centos-8"
+  config.vm.box = "ubuntu/focal64"
 
   # Packer install vagrant-vbguest plugins
-  config.vm.hostname = "centos-8"
+  config.vm.hostname = "focal64"
   if ENV["VM_SYNCED_FOLDER"]
     config.vm.synced_folder ENV["VM_SYNCED_FOLDER"], "/development"
   end
 
   
   config.vm.provider "virtualbox" do |v|
-    v.name         = "centos-8"
+    v.name         = "focal64"
     v.cpus         = ENV["VM_CPUS"]   ? ENV["VM_CPUS"]   : 4
     v.memory       = ENV["VM_MEMORY"] ? ENV["VM_MEMORY"] : 4096
     v.linked_clone = true
